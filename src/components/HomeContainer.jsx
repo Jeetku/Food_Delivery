@@ -1,6 +1,7 @@
 import React from "react";
 import Delivery from "../assets/img/delivery.png";
 import HeroBg from "../assets/img/heroBg.png";
+import { heroData } from "../utils/Data";
 
 const HomeContainer = () => {
   return (
@@ -46,8 +47,30 @@ const HomeContainer = () => {
           alt="HeroBg"
           className="h-420 w-full lg:w-auto lg:h-600 ml-auto"
         />
-        <div className="w-full h-full absolute top-0 left-0 px-32 py-4 flex items-center justify-center">
-          <div className="w-190 p-2 bg-red-500"></div>
+        <div className="w-full h-full absolute top-0 left-0  py-4 flex items-center justify-center gap-4 flex-wrap">
+          {heroData &&
+            heroData.map((n) => (
+              <div
+                key={n.id}
+                className="lg:w-190  p-4 bg-cardOverlay backdrop-blur-md rounded-3xl flex items-center justify-center flex-col drop-shadow-lg"
+              >
+                <img
+                  src={n.imageSrc}
+                  alt="I1"
+                  className="w-20 lg:w-40 -mt-10 lg:-mt-20"
+                />
+                <p className="text-base lg:text-xl mt-2 lg:mt-4 font-semibold text-textColor">
+                  {n.name}
+                </p>
+                <p className=" text-[10px] lg:text-sm text-lightTextGray font-semibold my-1 lg:my-3">
+                  {n.desc}
+                </p>
+                <p className="text-sm font-semibold text-headingColor">
+                  <span className="text-xs text-red-600">$</span>
+                  {n.price}
+                </p>
+              </div>
+            ))}
         </div>
       </div>
     </section>
