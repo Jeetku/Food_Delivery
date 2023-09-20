@@ -9,6 +9,14 @@ import {
 } from "react-icons/md";
 import { categories } from "../utils/Data";
 import Loader from "./Loader";
+import { storage } from "../firebase.config";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytesResumable,
+} from "firebase/storage";
+import { saveItem } from "../utils/FirebaseFunctions";
 
 const CreateContainer = () => {
   const [title, setTitle] = useState("");
@@ -22,9 +30,114 @@ const CreateContainer = () => {
   const [msg, setMsg] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const uploadImage = () => {};
-  const deleteImage = () => {};
-  const saveDetails = () => {};
+  // Uploading Images
+
+  const uploadImage = (e) => {
+    setIsLoading(true);
+    const imageFiles = e.target.files[0];
+    console.log(imageFiles);
+    const storageRef = ref(storage, `Images/${Date.now()}-${imageFiles.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, imageFiles);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const uploadProgress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      },
+      (error) => {
+        console.log(error);
+        setFields(true);
+        setMsg("Error While Uploading: Try Again 🔔");
+        setAlertStatus("danger");
+        setTimeout(() => {
+          setFields(false);
+          setIsLoading(false);
+        }, 4000);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+          setImgAsset(downloadUrl);
+          setIsLoading(false);
+          setFields(true);
+          setMsg("Images Uploaded successfully 🥳");
+          setAlertStatus("success");
+          setTimeout(() => {
+            setFields(false);
+          }, 4000);
+        });
+      }
+    );
+  };
+
+  // Deleteing uploaded images
+  const deleteImage = () => {
+    setIsLoading(true);
+    const deleteRef = ref(storage, imgAssets);
+    deleteObject(deleteRef).then(() => {
+      setFields(true);
+      setImgAsset(null);
+      setIsLoading(false);
+      setAlertStatus("success");
+      setMsg("Image has been successfully deleted 🥳");
+      setTimeout(() => {
+        setFields(false);
+      }, 4000);
+    });
+  };
+
+  // Saving the entered input field
+
+  const saveDetails = () => {
+    setIsLoading(true);
+    try {
+      if (!title || !price || !imgAssets || !calories || !category) {
+        setFields(true);
+        setMsg("Required fields can't be empty 😓");
+        setAlertStatus("danger");
+        setTimeout(() => {
+          setFields(false);
+          setIsLoading(false);
+        }, 4000);
+      } else {
+        const data = {
+          id: `${Date.now()}`,
+          title: title,
+          imageUrl: imgAssets,
+          calories: calories,
+          qty: 1,
+          price: price,
+        };
+        saveItem(data);
+        setIsLoading(false);
+        setFields(true);
+        setMsg("Data has been successfully added 🥳");
+        clearData();
+        setAlertStatus("success");
+        setTimeout(() => {
+          setFields(false);
+        }, 4000);
+      }
+    } catch (error) {
+      console.log(error);
+      setFields(true);
+      setMsg("Error While Uploading: Try Again 🔔");
+      setAlertStatus("danger");
+      setTimeout(() => {
+        setFields(false);
+        setIsLoading(false);
+      }, 4000);
+    }
+  };
+
+  // Clear Input fields again
+
+  const clearData = () => {
+    setTitle("");
+    setImgAsset(null);
+    setCalories("");
+    setPrice("");
+    setCategories("Select Category");
+  };
 
   return (
     <div className="w-full min-h-screen h-auto flex justify-center items-center">
