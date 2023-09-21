@@ -2,7 +2,8 @@ import React from "react";
 import { MdShoppingBasket } from "react-icons/md";
 import { motion } from "framer-motion";
 
-const RowContainer = ({ flag }) => {
+const RowContainer = ({ flag, data }) => {
+  console.log(data);
   return (
     <div
       className={`w-full my-12 bg-rowBg   ${
